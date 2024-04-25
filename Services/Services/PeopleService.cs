@@ -26,11 +26,7 @@ namespace Services.Services
 
         public async Task<PersonDTO> Add(PersonForAddingDTO personDTO)
         {
-            var image = FilesHelper.GetImageBytes(personDTO.Signature);
-
-            var person = new Person();
-            person.Signature = image;
-            _mapper.Map(personDTO, person);
+            var person = _mapper.Map<Person>(personDTO);
             _repositoryManager.PeopleRepository.Add(person);
 
             await _repositoryManager.UnitOfWork.SaveChanges();
