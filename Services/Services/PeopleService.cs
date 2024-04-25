@@ -27,53 +27,14 @@ namespace Services.Services
         public async Task<PersonDTO> Add(PersonForAddingDTO personDTO)
         {
             var image = FilesHelper.GetImageBytes(personDTO.Signature);
-            var person = new Person
-            {
-                FirstName = personDTO.FirstName,
-                LastName = personDTO.LastName,
-                MiddleName = personDTO.MiddleName,
-                DateOfBirth = personDTO.DateOfBirth,
-                Phone = personDTO.Phone,
-                Nationality = personDTO.Nationality,
-                Sex = personDTO.Sex,
-                MaritalStatus = personDTO.MaritalStatus,
-                Education = personDTO.Education,
-                Workplace = personDTO.Workplace,
-                PublicSpecialty = personDTO.PublicSpecialty,
-                TRSSC = personDTO.TRSSC,
-                RegistrationDate = personDTO.RegistrationDate,
-                DischargeDate = personDTO.DischargeDate,
-                DischargeReason = personDTO.DischargeReason,
-                Signature = image,
-                NeedMMC = personDTO.NeedMMC,
-                LastMMC = personDTO.LastMMC,
-                Fine = personDTO.Fine
-            };
+
+            var person = new Person();
+            person.Signature = image;
+            _mapper.Map(personDTO, person);
             _repositoryManager.PeopleRepository.Add(person);
+
             await _repositoryManager.UnitOfWork.SaveChanges();
-            return new PersonDTO
-            {
-                Id = person.Id,
-                FirstName = person.FirstName,
-                LastName = person.LastName,
-                MiddleName = person.MiddleName,
-                DateOfBirth = person.DateOfBirth,
-                Phone = person.Phone,
-                Nationality = person.Nationality,
-                Sex = person.Sex,
-                MaritalStatus = person.MaritalStatus,
-                Education = person.Education,
-                Workplace = person.Workplace,
-                PublicSpecialty = person.PublicSpecialty,
-                TRSSC = person.TRSSC,
-                RegistrationDate = person.RegistrationDate,
-                DischargeDate = person.DischargeDate,
-                DischargeReason = person.DischargeReason,
-                Signature = person.Signature,
-                NeedMMC = person.NeedMMC,
-                LastMMC = person.LastMMC,
-                Fine = person.Fine
-            };
+            return _mapper.Map<PersonDTO>(person);
         }
 
         public async Task Delete(int personId)

@@ -23,7 +23,7 @@ namespace Infrastructure.Configurations
             builder.Property(person => person.Phone).HasMaxLength(15).IsRequired();
             builder.Property(person => person.Nationality).HasMaxLength(15).IsRequired();
             builder.Property(person => person.Sex).HasMaxLength(15).IsRequired();
-            builder.Property(person => person.MaritalStatus).HasMaxLength(10).IsRequired();
+            builder.Property(person => person.MaritalStatus).HasMaxLength(15).IsRequired();
             builder.Property(person => person.Education).IsRequired();
             builder.Property(person => person.PublicSpecialty);
             builder.Property(person => person.Workplace).IsRequired();

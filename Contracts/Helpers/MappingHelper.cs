@@ -20,6 +20,8 @@ namespace Contracts.Helpers
 
             CreateMap<Person, PersonDTO>()
                 .ForMember(a => a.Addresses, opt => opt.MapFrom(src => src.Addresses));
+            CreateMap<PersonForAddingDTO, Person>()
+                .ForMember(s => s.Signature, opt => opt.MapFrom(src => FilesHelper.GetImageBytes(src.Signature)));
 
             CreateMap<Address, AddressDTO>();
             CreateMap<Address, AddressDTO>().ReverseMap();
