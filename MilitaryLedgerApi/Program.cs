@@ -1,3 +1,4 @@
+using Contracts.Helpers;
 using Domain.Interfaces;
 using Infrastructure;
 using Infrastructure.Repositories;
@@ -20,6 +21,8 @@ namespace MilitaryLedgerApi
 
             builder.Services.AddScoped<IServiceManager, ServiceManager>();
             builder.Services.AddScoped<IRepositoryManager, RepositoryManager>();
+
+            builder.Services.AddAutoMapper(typeof(MappingHelper));
 
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("Database")));

@@ -1,4 +1,5 @@
-﻿using Domain.Interfaces;
+﻿using AutoMapper;
+using Domain.Interfaces;
 using Services.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -13,10 +14,10 @@ namespace Services.Services
         private readonly Lazy<IPeopleService> _lazyPeopleService;
         private readonly Lazy<IAddressesService> _lazyAddressesService;
 
-        public ServiceManager(IRepositoryManager repositoryManager)
+        public ServiceManager(IRepositoryManager repositoryManager, IMapper mapper)
         {
-            _lazyPeopleService = new Lazy<IPeopleService>(() => new PeopleService(repositoryManager));
-            _lazyAddressesService = new Lazy<IAddressesService>(() => new AddressesService(repositoryManager));
+            _lazyPeopleService = new Lazy<IPeopleService>(() => new PeopleService(repositoryManager, mapper));
+            _lazyAddressesService = new Lazy<IAddressesService>(() => new AddressesService(repositoryManager, mapper));
         }
 
         public IPeopleService PeopleService => _lazyPeopleService.Value;

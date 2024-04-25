@@ -9,13 +9,19 @@ using System.Security.Principal;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using AutoMapper;
 
 namespace Services.Services
 {
     public class AddressesService : IAddressesService
     {
         private readonly IRepositoryManager _repositoryManager;
-        public AddressesService(IRepositoryManager repositoryManager) => _repositoryManager = repositoryManager;
+        private readonly IMapper _mapper;
+
+        public AddressesService(IRepositoryManager repositoryManager, IMapper mapper) {
+            _repositoryManager = repositoryManager;
+            _mapper = mapper;
+        }
 
         public async Task<AddressDTO> Add(int personId, AddressForAddingDTO addressDTO)
         {
@@ -24,33 +30,12 @@ namespace Services.Services
             {
                 //throw new PersonNotFoundException(personId);
             }
-            var address = new Address
-            {
-                Country = addressDTO.Country,
-                City = addressDTO.City,
-                Region = addressDTO.Region,
-                Street = addressDTO.Street,
-                House = addressDTO.House,
-                Entrance = addressDTO.Entrance,
-                Apartment = addressDTO.Apartment,
-                ResidenceOrRegistration = addressDTO.ResidenceOrRegistration,
-                PersonId = personId,
-            };
+            var address = _mapper.Map<Address>(addressDTO);
+            address.PersonId = personId;
             _repositoryManager.AddressesRepository.Add(address);
+
             await _repositoryManager.UnitOfWork.SaveChanges();
-            return new AddressDTO
-            {
-                Id = address.Id,
-                Country = address.Country,
-                City = address.City,
-                Region = address.Region,
-                Street = address.Street,
-                House = address.House,
-                Entrance = address.Entrance,
-                Apartment = address.Apartment,
-                ResidenceOrRegistration = address.ResidenceOrRegistration,
-                PersonId = personId,
-            };
+            return _mapper.Map<AddressDTO>(address);
         }
 
         public async Task Delete(int addressId)
@@ -81,57 +66,20 @@ namespace Services.Services
             {
                 //throw new AddressNotFoundException(addressId);
             }
-            var addressDTO = new AddressDTO
-            {
-                Id = addressId,
-                Country = address.Country,
-                City = address.City,
-                Region = address.Region,
-                Street = address.Street,
-                House = address.House,
-                Entrance = address.Entrance,
-                Apartment = address.Apartment,
-                ResidenceOrRegistration = address.ResidenceOrRegistration,
-                PersonId = address.PersonId
-            };
+            var addressDTO = _mapper.Map<AddressDTO>(address);
             return addressDTO;
         }
 
         public async Task<IEnumerable<AddressDTO>> GetAddressesByPersonId(int personId)
         {
             var addresses = await _repositoryManager.AddressesRepository.GetAddressesByPersonId(personId);
-            var addressesDTO = addresses.Select(a => new AddressDTO
-            {
-                Id = a.Id,
-                Country = a.Country,
-                City = a.City,
-                Region = a.Region,
-                Street = a.Street,
-                House = a.House,
-                Entrance = a.Entrance,
-                Apartment = a.Apartment,
-                ResidenceOrRegistration = a.ResidenceOrRegistration,
-                PersonId = a.PersonId
-            }).ToList();
-            return addressesDTO;
+            return _mapper.Map<List<AddressDTO>>(addresses);
         }
 
         public async Task<IEnumerable<AddressDTO>> GetAllAddresses()
         {
             var address = await _repositoryManager.AddressesRepository.GetAllAddresses();
-            return address.Select(a => new AddressDTO
-            {
-                Id = a.Id,
-                Country = a.Country,
-                City = a.City,
-                Region = a.Region,
-                Street = a.Street,
-                House = a.House,
-                Entrance = a.Entrance,
-                Apartment = a.Apartment,
-                ResidenceOrRegistration = a.ResidenceOrRegistration,
-                PersonId = a.PersonId
-            });
+            return _mapper.Map<List<AddressDTO>>(address);
         }
 
         public async Task Update(int addressId, AddressDTO addressDTO)

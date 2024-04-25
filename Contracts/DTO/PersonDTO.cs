@@ -28,5 +28,7 @@ namespace Contracts.DTO
         public bool NeedMMC { get; set; }
         public DateOnly? LastMMC { get; set; }
         public double? Fine { get; set; }
+
+        public ICollection<AddressDTO> Addresses { get; set; } = new List<AddressDTO>();
     }
 }

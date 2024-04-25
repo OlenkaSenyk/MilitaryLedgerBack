@@ -9,13 +9,20 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using AutoMapper;
 
 namespace Services.Services
 {
     public class PeopleService : IPeopleService
     {
         private readonly IRepositoryManager _repositoryManager;
-        public PeopleService(IRepositoryManager repositoryManager) => _repositoryManager = repositoryManager;
+        private readonly IMapper _mapper;
+
+        public PeopleService(IRepositoryManager repositoryManager, IMapper mapper)
+        {
+            _repositoryManager = repositoryManager;
+            _mapper = mapper;
+        }
 
         public async Task<PersonDTO> Add(PersonForAddingDTO personDTO)
         {
@@ -83,29 +90,7 @@ namespace Services.Services
         public async Task<IEnumerable<PersonDTO>> GetAllPeople()
         {
             var people = await _repositoryManager.PeopleRepository.GetAllPeople();
-            return people.Select(p => new PersonDTO
-            {
-                Id = p.Id,
-                FirstName = p.FirstName,
-                LastName = p.LastName,
-                MiddleName = p.MiddleName,
-                DateOfBirth = p.DateOfBirth,
-                Phone = p.Phone,
-                Nationality = p.Nationality,
-                Sex = p.Sex,
-                MaritalStatus = p.MaritalStatus,
-                Education = p.Education,
-                Workplace = p.Workplace,
-                PublicSpecialty = p.PublicSpecialty,
-                TRSSC = p.TRSSC,
-                RegistrationDate = p.RegistrationDate,
-                DischargeDate = p.DischargeDate,
-                DischargeReason = p.DischargeReason,
-                Signature = p.Signature,
-                NeedMMC = p.NeedMMC,
-                LastMMC = p.LastMMC,
-                Fine = p.Fine
-            }).ToList();
+            return _mapper.Map<List<PersonDTO>>(people);
         }
 
         public async Task<PersonDTO> GetPersonById(int personId)
@@ -116,29 +101,7 @@ namespace Services.Services
                 return null;
                 //throw new PersonNotFoundException(personId);
             }
-            return new PersonDTO
-            {
-                Id = person.Id,
-                FirstName = person.FirstName,
-                LastName = person.LastName,
-                MiddleName = person.MiddleName,
-                DateOfBirth = person.DateOfBirth,
-                Phone = person.Phone,
-                Nationality = person.Nationality,
-                Sex = person.Sex,
-                MaritalStatus = person.MaritalStatus,
-                Education = person.Education,
-                Workplace = person.Workplace,
-                PublicSpecialty = person.PublicSpecialty,
-                TRSSC = person.TRSSC,
-                RegistrationDate = person.RegistrationDate,
-                DischargeDate = person.DischargeDate,
-                DischargeReason = person.DischargeReason,
-                Signature = person.Signature,
-                NeedMMC = person.NeedMMC,
-                LastMMC = person.LastMMC,
-                Fine = person.Fine
-            };
+            return _mapper.Map<PersonDTO>(person);
         }
 
         public async Task Update(int personId, PersonDTO personDTO)

@@ -16,6 +16,5 @@ namespace Contracts.DTO
         public int? Entrance { get; set; }
         public int? Apartment { get; set; }
         public string ResidenceOrRegistration { get; set; }
-        public int PersonId { get; set; }
     }
 }
