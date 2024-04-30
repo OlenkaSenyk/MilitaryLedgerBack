@@ -1,12 +1,17 @@
+using AutoMapper;
 using Contracts.Helpers;
 using Domain.Interfaces;
 using Infrastructure;
 using Infrastructure.Repositories;
 using Microsoft.AspNetCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Services.Interfaces;
 using Services.Services;
+using System.Text;
 
 namespace MilitaryLedgerApi
 {
@@ -19,16 +24,73 @@ namespace MilitaryLedgerApi
             builder.Services.AddControllers()
                 .AddApplicationPart(typeof(Presentation.AssemblyReference).Assembly);
 
-            builder.Services.AddScoped<IServiceManager, ServiceManager>();
-            builder.Services.AddScoped<IRepositoryManager, RepositoryManager>();
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen(options =>
+            {
+                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Description = "JWT ...",
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Scheme = "Bearer"
+                });
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            },
+                            Scheme = "oauth2",
+                            Name = "Bearer",
+                            In = ParameterLocation.Header
+                        },
+                        new List<string>()
+                    }
+                });
+            });
 
-            builder.Services.AddAutoMapper(typeof(MappingHelper));
+            var key = builder.Configuration.GetValue<string>("ApiSettings:Secret");
+
+            builder.Services.AddAuthentication(x =>
+            {
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(x =>
+            {
+                x.RequireHttpsMetadata = false;
+                x.SaveToken = true;
+                x.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(key)),
+                    ValidateIssuer = false,
+                    ValidateAudience = false
+                };
+            });
 
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("Database")));
 
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddScoped<IServiceManager>(x => 
+                new ServiceManager(x.GetRequiredService<IRepositoryManager>(), x.GetRequiredService<IMapper>(), key));
+            builder.Services.AddScoped<IRepositoryManager, RepositoryManager>();
+
+            builder.Services.AddAutoMapper(typeof(MappingHelper));
+
+            builder.Services.AddCors(options =>
+            {
+                // This defines a CORS policy called "default"
+                options.AddDefaultPolicy(policy =>
+                {
+                    policy.AllowAnyOrigin() // Allow access from any origin
+                          .AllowAnyHeader()
+                          .AllowAnyMethod();
+                });
+            });
 
             var app = builder.Build();
 
@@ -39,10 +101,12 @@ namespace MilitaryLedgerApi
                 app.UseSwaggerUI();
             }
 
+            app.UseCors();
+
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
             app.UseAuthorization();
-
 
             app.MapControllers();
 

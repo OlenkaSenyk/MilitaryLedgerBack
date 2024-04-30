@@ -24,6 +24,10 @@ namespace Infrastructure.Configurations
             builder.Property(address => address.Entrance).HasMaxLength(10);
             builder.Property(address => address.Apartment).HasMaxLength(10);
             builder.Property(address => address.ResidenceOrRegistration).HasMaxLength(20).IsRequired();
+            builder.Property(address => address.CreatedAt).IsRequired();
+            builder.Property(address => address.CreatedById).IsRequired();
+            builder.Property(address => address.LastUpdatedAt).IsRequired();
+            builder.Property(address => address.LastUpdatedById).IsRequired();
         }
     }
 }

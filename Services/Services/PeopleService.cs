@@ -24,9 +24,15 @@ namespace Services.Services
             _mapper = mapper;
         }
 
-        public async Task<PersonDTO> Add(PersonForAddingDTO personDTO)
+        public async Task<PersonDTO> Add(PersonForAddingDTO personDTO, string token)
         {
+            int userId = SecurityHelper.GetClaimsFromToken(token);
+
             var person = _mapper.Map<Person>(personDTO);
+            person.CreatedAt = DateTime.Now;
+            person.CreatedById = userId;
+            person.LastUpdatedAt = DateTime.Now;
+            person.LastUpdatedById = userId;
             _repositoryManager.PeopleRepository.Add(person);
 
             await _repositoryManager.UnitOfWork.SaveChanges();
@@ -61,13 +67,14 @@ namespace Services.Services
             return _mapper.Map<PersonDTO>(person);
         }
 
-        public async Task Update(int personId, PersonDTO personDTO)
+        public async Task Update(int personId, PersonDTO personDTO, string token)
         {
             var person = await _repositoryManager.PeopleRepository.GetPersonById(personId);
             if (person is null)
             {
                 //throw new PersonNotFoundException(personId);
             }
+            int userId = SecurityHelper.GetClaimsFromToken(token);
             person.FirstName = personDTO.FirstName;
             person.LastName = personDTO.LastName;
             person.MiddleName = personDTO.MiddleName;
@@ -77,6 +84,7 @@ namespace Services.Services
             person.Sex = personDTO.Sex;
             person.MaritalStatus = personDTO.MaritalStatus;
             person.Education = personDTO.Education;
+            person.EducationLevel = personDTO.EducationLevel;
             person.Workplace = personDTO.Workplace;
             person.PublicSpecialty = personDTO.PublicSpecialty;
             person.TRSSC = personDTO.TRSSC;
@@ -86,6 +94,8 @@ namespace Services.Services
             person.NeedMMC = personDTO.NeedMMC;
             person.LastMMC = personDTO.LastMMC;
             person.Fine = personDTO.Fine;
+            person.LastUpdatedAt = DateTime.Now;
+            person.LastUpdatedById = userId;
 
             await _repositoryManager.UnitOfWork.SaveChanges();
         }

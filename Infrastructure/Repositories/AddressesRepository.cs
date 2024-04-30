@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Repositories
 {
-    public class AddressesRepository : IAddressesRepository
+    public class AddressesRepository : IChildItemRepository<Address>
     {
         private readonly AppDbContext _context;
         public AddressesRepository(AppDbContext context) => _context = context;
@@ -27,17 +27,17 @@ namespace Infrastructure.Repositories
             _context.Addresses.Remove(address);
         }
 
-        public async Task<Address> GetAddressById(int addressId)
+        public async Task<Address> GetById(int itemId)
         {
-            return await _context.Addresses.FirstOrDefaultAsync(x => x.Id == addressId);
+            return await _context.Addresses.FirstOrDefaultAsync(x => x.Id == itemId);
         }
 
-        public async Task<IEnumerable<Address>> GetAddressesByPersonId(int personId)
+        public async Task<IEnumerable<Address>> GetByPersonId(int personId)
         {
             return await _context.Addresses.Where(x => x.PersonId == personId).ToListAsync();
         }
 
-        public async Task<IEnumerable<Address>> GetAllAddresses()
+        public async Task<IEnumerable<Address>> GetAll()
         {
             return await _context.Addresses.ToListAsync();
         }

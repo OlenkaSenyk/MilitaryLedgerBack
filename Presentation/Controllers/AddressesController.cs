@@ -1,4 +1,5 @@
 ﻿using Contracts.DTO;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
 using System;
@@ -10,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace Presentation.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/addresses")]
     public class AddressesController : ControllerBase
@@ -20,7 +22,7 @@ namespace Presentation.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllAddresses()
         {
-            var addressesDTO = await _serviceManager.AddressesService.GetAllAddresses();
+            var addressesDTO = await _serviceManager.AddressesService.GetAll();
             return Ok(addressesDTO);
         }
 
@@ -28,7 +30,7 @@ namespace Presentation.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAddressesByPersonId(int personId)
         {
-            var addressesDTO = await _serviceManager.AddressesService.GetAddressesByPersonId(personId);
+            var addressesDTO = await _serviceManager.AddressesService.GetByPersonId(personId);
             return Ok(addressesDTO);
         }
 
@@ -36,7 +38,7 @@ namespace Presentation.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAddressById(int addressId)
         {
-            var addressDTO = await _serviceManager.AddressesService.GetAddressById(addressId);
+            var addressDTO = await _serviceManager.AddressesService.GetById(addressId);
             return Ok(addressDTO);
         }
 
@@ -44,7 +46,8 @@ namespace Presentation.Controllers
         [HttpPost]
         public async Task<IActionResult> AddAddress(int personId, [FromBody] AddressForAddingDTO addressForAddingDTO)
         {
-            var response = await _serviceManager.AddressesService.Add(personId, addressForAddingDTO);
+            string token = Request.Headers["Authorization"].ToString().Split(' ')[1];
+            var response = await _serviceManager.AddressesService.Add(personId, addressForAddingDTO, token);
             return CreatedAtAction(nameof(GetAddressById), new { personId = response.PersonId, addressId = response.Id }, response);
         }
 

@@ -44,6 +44,13 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("CreatedById")
+                        .IsRequired()
+                        .HasColumnType("int");
+
                     b.Property<int?>("Entrance")
                         .HasMaxLength(10)
                         .HasColumnType("int");
@@ -53,11 +60,17 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
 
+                    b.Property<DateTime>("LastUpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("LastUpdatedById")
+                        .IsRequired()
+                        .HasColumnType("int");
+
                     b.Property<int>("PersonId")
                         .HasColumnType("int");
 
                     b.Property<string>("Region")
-                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
@@ -73,9 +86,554 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("LastUpdatedById");
+
                     b.HasIndex("PersonId");
 
                     b.ToTable("Addresses", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.Award", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("CreatedById")
+                        .IsRequired()
+                        .HasColumnType("int");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date");
+
+                    b.Property<DateTime>("LastUpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("LastUpdatedById")
+                        .IsRequired()
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("PersonId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("LastUpdatedById");
+
+                    b.HasIndex("PersonId");
+
+                    b.ToTable("Awards", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.CalendarEvent", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("CreatedById")
+                        .IsRequired()
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("LastUpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("LastUpdatedById")
+                        .IsRequired()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("LastUpdatedById");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("CalendarEvents", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.CombatParticipation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("CreatedById")
+                        .IsRequired()
+                        .HasColumnType("int");
+
+                    b.Property<DateOnly>("EndDate")
+                        .HasColumnType("date");
+
+                    b.Property<DateTime>("LastUpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("LastUpdatedById")
+                        .IsRequired()
+                        .HasColumnType("int");
+
+                    b.Property<string>("Location")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("OperationType")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("PersonId")
+                        .HasColumnType("int");
+
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("LastUpdatedById");
+
+                    b.HasIndex("PersonId");
+
+                    b.ToTable("CombatParticipations", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.Document", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("CreatedById")
+                        .IsRequired()
+                        .HasColumnType("int");
+
+                    b.Property<DateOnly>("ExpiryDate")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly>("IssueDate")
+                        .HasColumnType("date");
+
+                    b.Property<DateTime>("LastUpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("LastUpdatedById")
+                        .IsRequired()
+                        .HasColumnType("int");
+
+                    b.Property<string>("Number")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int?>("PersonId")
+                        .HasColumnType("int");
+
+                    b.Property<byte[]>("ScanCopy")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("LastUpdatedById");
+
+                    b.HasIndex("PersonId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Documents", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.DocumentTemplate", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("CreatedById")
+                        .IsRequired()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("LastUpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("LastUpdatedById")
+                        .IsRequired()
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("LastUpdatedById");
+
+                    b.ToTable("DocumentTemplates", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.File", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("CreatedById")
+                        .IsRequired()
+                        .HasColumnType("int");
+
+                    b.Property<byte[]>("IndividualTaxNumber")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<DateTime>("LastUpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("LastUpdatedById")
+                        .IsRequired()
+                        .HasColumnType("int");
+
+                    b.Property<byte[]>("MedicalCertificate")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<byte[]>("Passport")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<int>("PersonId")
+                        .HasColumnType("int");
+
+                    b.Property<byte[]>("Photo")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<byte[]>("ResidencePermit")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("LastUpdatedById");
+
+                    b.HasIndex("PersonId")
+                        .IsUnique();
+
+                    b.ToTable("Files", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.Injurie", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("CreatedById")
+                        .IsRequired()
+                        .HasColumnType("int");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date");
+
+                    b.Property<DateTime>("LastUpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("LastUpdatedById")
+                        .IsRequired()
+                        .HasColumnType("int");
+
+                    b.Property<string>("Location")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("MedicalAssistance")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PersonId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("LastUpdatedById");
+
+                    b.HasIndex("PersonId");
+
+                    b.ToTable("Injuries", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.MedicalData", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("BloodRh")
+                        .IsRequired()
+                        .HasMaxLength(2)
+                        .HasColumnType("nvarchar(2)");
+
+                    b.Property<string>("BloodType")
+                        .IsRequired()
+                        .HasMaxLength(2)
+                        .HasColumnType("nvarchar(2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("CreatedById")
+                        .IsRequired()
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Eligibility")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Features")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("LastUpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("LastUpdatedById")
+                        .IsRequired()
+                        .HasColumnType("int");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PersonId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("LastUpdatedById");
+
+                    b.HasIndex("PersonId")
+                        .IsUnique();
+
+                    b.ToTable("MedicalDatas", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.News", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("CreatedById")
+                        .IsRequired()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("LastUpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("LastUpdatedById")
+                        .IsRequired()
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("LastUpdatedById");
+
+                    b.ToTable("News", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.Parameter", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ClothingSize")
+                        .HasMaxLength(10)
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("CreatedById")
+                        .IsRequired()
+                        .HasColumnType("int");
+
+                    b.Property<int>("GasMaskSize")
+                        .HasMaxLength(10)
+                        .HasColumnType("int");
+
+                    b.Property<int>("HeadCircumference")
+                        .HasMaxLength(2)
+                        .HasColumnType("int");
+
+                    b.Property<double>("Height")
+                        .HasMaxLength(3)
+                        .HasColumnType("float");
+
+                    b.Property<DateTime>("LastUpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("LastUpdatedById")
+                        .IsRequired()
+                        .HasColumnType("int");
+
+                    b.Property<int>("PersonId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ShoeSize")
+                        .HasMaxLength(2)
+                        .HasColumnType("int");
+
+                    b.Property<double>("Width")
+                        .HasMaxLength(3)
+                        .HasColumnType("float");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("LastUpdatedById");
+
+                    b.HasIndex("PersonId")
+                        .IsUnique();
+
+                    b.ToTable("Parameters", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Person", b =>
@@ -85,6 +643,13 @@ namespace Infrastructure.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("CreatedById")
+                        .IsRequired()
+                        .HasColumnType("int");
 
                     b.Property<DateOnly>("DateOfBirth")
                         .HasColumnType("date");
@@ -98,6 +663,11 @@ namespace Infrastructure.Migrations
                     b.Property<string>("Education")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EducationLevel")
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
 
                     b.Property<double?>("Fine")
                         .HasColumnType("float");
@@ -114,6 +684,13 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(60)
                         .HasColumnType("nvarchar(60)");
+
+                    b.Property<DateTime>("LastUpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("LastUpdatedById")
+                        .IsRequired()
+                        .HasColumnType("int");
 
                     b.Property<string>("MaritalStatus")
                         .IsRequired()
@@ -163,11 +740,151 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("LastUpdatedById");
+
                     b.ToTable("People", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.ServiceHistory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("CreatedById")
+                        .IsRequired()
+                        .HasColumnType("int");
+
+                    b.Property<DateOnly>("EndDate")
+                        .HasColumnType("date");
+
+                    b.Property<DateTime>("LastUpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("LastUpdatedById")
+                        .IsRequired()
+                        .HasColumnType("int");
+
+                    b.Property<string>("MilitaryBranch")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("MilitaryCategory")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("MilitaryRank")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("MilitaryUnit")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("PersonId")
+                        .HasColumnType("int");
+
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("LastUpdatedById");
+
+                    b.HasIndex("PersonId");
+
+                    b.ToTable("ServiceHistories", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.User", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("CreatedById")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("nvarchar(60)");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("nvarchar(60)");
+
+                    b.Property<DateTime>("LastUpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("LastUpdatedById")
+                        .HasColumnType("int");
+
+                    b.Property<string>("MiddleName")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("nvarchar(60)");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("LastUpdatedById");
+
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Address", b =>
                 {
+                    b.HasOne("Domain.Entities.User", null)
+                        .WithMany("CreatedAddresses")
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.User", null)
+                        .WithMany("LastUpdatedAddresses")
+                        .HasForeignKey("LastUpdatedById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("Domain.Entities.Person", null)
                         .WithMany("Addresses")
                         .HasForeignKey("PersonId")
@@ -175,9 +892,343 @@ namespace Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Domain.Entities.Award", b =>
+                {
+                    b.HasOne("Domain.Entities.User", null)
+                        .WithMany("CreatedAwards")
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.User", null)
+                        .WithMany("LastUpdatedAwards")
+                        .HasForeignKey("LastUpdatedById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Person", null)
+                        .WithMany("Awards")
+                        .HasForeignKey("PersonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Domain.Entities.CalendarEvent", b =>
+                {
+                    b.HasOne("Domain.Entities.User", null)
+                        .WithMany("CreatedCalendarEvents")
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.User", null)
+                        .WithMany("LastUpdatedCalendarEvents")
+                        .HasForeignKey("LastUpdatedById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.User", null)
+                        .WithMany("CalendarEvents")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Domain.Entities.CombatParticipation", b =>
+                {
+                    b.HasOne("Domain.Entities.User", null)
+                        .WithMany("CreatedCombatParticipations")
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.User", null)
+                        .WithMany("LastUpdatedCombatParticipations")
+                        .HasForeignKey("LastUpdatedById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Person", null)
+                        .WithMany("CombatParticipations")
+                        .HasForeignKey("PersonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Domain.Entities.Document", b =>
+                {
+                    b.HasOne("Domain.Entities.User", null)
+                        .WithMany("CreatedDocuments")
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.User", null)
+                        .WithMany("LastUpdatedDocuments")
+                        .HasForeignKey("LastUpdatedById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Person", null)
+                        .WithMany("Documents")
+                        .HasForeignKey("PersonId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Domain.Entities.User", null)
+                        .WithMany("Documents")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Domain.Entities.DocumentTemplate", b =>
+                {
+                    b.HasOne("Domain.Entities.User", null)
+                        .WithMany("CreatedDocumentTemplates")
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.User", null)
+                        .WithMany("LastUpdatedDocumentTemplates")
+                        .HasForeignKey("LastUpdatedById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Domain.Entities.File", b =>
+                {
+                    b.HasOne("Domain.Entities.User", null)
+                        .WithMany("CreatedFiles")
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.User", null)
+                        .WithMany("LastUpdatedFiles")
+                        .HasForeignKey("LastUpdatedById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Person", null)
+                        .WithOne("Files")
+                        .HasForeignKey("Domain.Entities.File", "PersonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Domain.Entities.Injurie", b =>
+                {
+                    b.HasOne("Domain.Entities.User", null)
+                        .WithMany("CreatedInjuries")
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.User", null)
+                        .WithMany("LastUpdatedInjuries")
+                        .HasForeignKey("LastUpdatedById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Person", null)
+                        .WithMany("Injuries")
+                        .HasForeignKey("PersonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Domain.Entities.MedicalData", b =>
+                {
+                    b.HasOne("Domain.Entities.User", null)
+                        .WithMany("CreatedMedicalDatas")
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.User", null)
+                        .WithMany("LastUpdatedMedicalDatas")
+                        .HasForeignKey("LastUpdatedById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Person", null)
+                        .WithOne("MedicalData")
+                        .HasForeignKey("Domain.Entities.MedicalData", "PersonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Domain.Entities.News", b =>
+                {
+                    b.HasOne("Domain.Entities.User", null)
+                        .WithMany("CreatedNews")
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.User", null)
+                        .WithMany("LastUpdatedNews")
+                        .HasForeignKey("LastUpdatedById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Domain.Entities.Parameter", b =>
+                {
+                    b.HasOne("Domain.Entities.User", null)
+                        .WithMany("CreatedParameters")
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.User", null)
+                        .WithMany("LastUpdatedParameters")
+                        .HasForeignKey("LastUpdatedById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Person", null)
+                        .WithOne("Parameter")
+                        .HasForeignKey("Domain.Entities.Parameter", "PersonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Domain.Entities.Person", b =>
+                {
+                    b.HasOne("Domain.Entities.User", null)
+                        .WithMany("CreatedPeople")
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.User", null)
+                        .WithMany("LastUpdatedPeople")
+                        .HasForeignKey("LastUpdatedById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Domain.Entities.ServiceHistory", b =>
+                {
+                    b.HasOne("Domain.Entities.User", null)
+                        .WithMany("CreatedServiceHistories")
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.User", null)
+                        .WithMany("LastUpdatedServiceHistories")
+                        .HasForeignKey("LastUpdatedById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Person", null)
+                        .WithMany("ServiceHistories")
+                        .HasForeignKey("PersonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Domain.Entities.User", b =>
+                {
+                    b.HasOne("Domain.Entities.User", "CreatedByUser")
+                        .WithMany()
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Domain.Entities.User", "LastUpdatedByUser")
+                        .WithMany()
+                        .HasForeignKey("LastUpdatedById")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CreatedByUser");
+
+                    b.Navigation("LastUpdatedByUser");
+                });
+
             modelBuilder.Entity("Domain.Entities.Person", b =>
                 {
                     b.Navigation("Addresses");
+
+                    b.Navigation("Awards");
+
+                    b.Navigation("CombatParticipations");
+
+                    b.Navigation("Documents");
+
+                    b.Navigation("Files")
+                        .IsRequired();
+
+                    b.Navigation("Injuries");
+
+                    b.Navigation("MedicalData")
+                        .IsRequired();
+
+                    b.Navigation("Parameter")
+                        .IsRequired();
+
+                    b.Navigation("ServiceHistories");
+                });
+
+            modelBuilder.Entity("Domain.Entities.User", b =>
+                {
+                    b.Navigation("CalendarEvents");
+
+                    b.Navigation("CreatedAddresses");
+
+                    b.Navigation("CreatedAwards");
+
+                    b.Navigation("CreatedCalendarEvents");
+
+                    b.Navigation("CreatedCombatParticipations");
+
+                    b.Navigation("CreatedDocumentTemplates");
+
+                    b.Navigation("CreatedDocuments");
+
+                    b.Navigation("CreatedFiles");
+
+                    b.Navigation("CreatedInjuries");
+
+                    b.Navigation("CreatedMedicalDatas");
+
+                    b.Navigation("CreatedNews");
+
+                    b.Navigation("CreatedParameters");
+
+                    b.Navigation("CreatedPeople");
+
+                    b.Navigation("CreatedServiceHistories");
+
+                    b.Navigation("Documents");
+
+                    b.Navigation("LastUpdatedAddresses");
+
+                    b.Navigation("LastUpdatedAwards");
+
+                    b.Navigation("LastUpdatedCalendarEvents");
+
+                    b.Navigation("LastUpdatedCombatParticipations");
+
+                    b.Navigation("LastUpdatedDocumentTemplates");
+
+                    b.Navigation("LastUpdatedDocuments");
+
+                    b.Navigation("LastUpdatedFiles");
+
+                    b.Navigation("LastUpdatedInjuries");
+
+                    b.Navigation("LastUpdatedMedicalDatas");
+
+                    b.Navigation("LastUpdatedNews");
+
+                    b.Navigation("LastUpdatedParameters");
+
+                    b.Navigation("LastUpdatedPeople");
+
+                    b.Navigation("LastUpdatedServiceHistories");
                 });
 #pragma warning restore 612, 618
         }

@@ -10,10 +10,11 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
+using Contracts.Helpers;
 
 namespace Services.Services
 {
-    public class AddressesService : IAddressesService
+    public class AddressesService : IChildItemService<AddressDTO, AddressForAddingDTO>
     {
         private readonly IRepositoryManager _repositoryManager;
         private readonly IMapper _mapper;
@@ -23,15 +24,21 @@ namespace Services.Services
             _mapper = mapper;
         }
 
-        public async Task<AddressDTO> Add(int personId, AddressForAddingDTO addressDTO)
+        public async Task<AddressDTO> Add(int personId, AddressForAddingDTO addressDTO, string token)
         {
             var person = await _repositoryManager.PeopleRepository.GetPersonById(personId);
             if (person is null)
             {
                 //throw new PersonNotFoundException(personId);
             }
+            int userId = SecurityHelper.GetClaimsFromToken(token);
+
             var address = _mapper.Map<Address>(addressDTO);
             address.PersonId = personId;
+            address.CreatedAt = DateTime.Now;
+            address.CreatedById = userId;
+            address.LastUpdatedAt = DateTime.Now;
+            address.LastUpdatedById = userId;
             _repositoryManager.AddressesRepository.Add(address);
 
             await _repositoryManager.UnitOfWork.SaveChanges();
@@ -40,7 +47,7 @@ namespace Services.Services
 
         public async Task Delete(int addressId)
         {
-            var address = await _repositoryManager.AddressesRepository.GetAddressById(addressId);
+            var address = await _repositoryManager.AddressesRepository.GetById(addressId);
             if (address is null)
             {
                 //throw new AddressNotFoundException(addressId);
@@ -51,7 +58,7 @@ namespace Services.Services
 
         public async Task DeleteAllByPersonId(int personId)
         {
-            var addresses = await _repositoryManager.AddressesRepository.GetAddressesByPersonId(personId);
+            var addresses = await _repositoryManager.AddressesRepository.GetByPersonId(personId);
             foreach (var a in addresses)
             {
                 _repositoryManager.AddressesRepository.Delete(a);
@@ -59,9 +66,9 @@ namespace Services.Services
             await _repositoryManager.UnitOfWork.SaveChanges();
         }
 
-        public async Task<AddressDTO> GetAddressById(int addressId)
+        public async Task<AddressDTO> GetById(int addressId)
         {
-            var address = await _repositoryManager.AddressesRepository.GetAddressById(addressId);
+            var address = await _repositoryManager.AddressesRepository.GetById(addressId);
             if (address is null)
             {
                 //throw new AddressNotFoundException(addressId);
@@ -70,25 +77,26 @@ namespace Services.Services
             return addressDTO;
         }
 
-        public async Task<IEnumerable<AddressDTO>> GetAddressesByPersonId(int personId)
+        public async Task<IEnumerable<AddressDTO>> GetByPersonId(int personId)
         {
-            var addresses = await _repositoryManager.AddressesRepository.GetAddressesByPersonId(personId);
+            var addresses = await _repositoryManager.AddressesRepository.GetByPersonId(personId);
             return _mapper.Map<List<AddressDTO>>(addresses);
         }
 
-        public async Task<IEnumerable<AddressDTO>> GetAllAddresses()
+        public async Task<IEnumerable<AddressDTO>> GetAll()
         {
-            var address = await _repositoryManager.AddressesRepository.GetAllAddresses();
+            var address = await _repositoryManager.AddressesRepository.GetAll();
             return _mapper.Map<List<AddressDTO>>(address);
         }
 
-        public async Task Update(int addressId, AddressDTO addressDTO)
+        public async Task Update(int addressId, AddressDTO addressDTO, string token)
         {
-            var address = await _repositoryManager.AddressesRepository.GetAddressById(addressId);
+            var address = await _repositoryManager.AddressesRepository.GetById(addressId);
             if (address is null)
             {
                 //throw new AddressNotFoundException(addressId);
             }
+            int userId = SecurityHelper.GetClaimsFromToken(token);
             address.Country = addressDTO.Country;
             address.City = addressDTO.City;
             address.Region = addressDTO.Region;
@@ -97,6 +105,8 @@ namespace Services.Services
             address.Entrance = addressDTO.Entrance;
             address.Apartment = addressDTO.Apartment;
             address.ResidenceOrRegistration = addressDTO.ResidenceOrRegistration;
+            address.LastUpdatedAt = DateTime.Now;
+            address.LastUpdatedById = userId;
 
             await _repositoryManager.UnitOfWork.SaveChanges();
         }

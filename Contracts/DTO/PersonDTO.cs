@@ -17,6 +17,7 @@ namespace Contracts.DTO
         public string Nationality { get; set; }
         public string Sex { get; set; }
         public string MaritalStatus { get; set; }
+        public string EducationLevel { get; set; }
         public string Education { get; set; }
         public string? PublicSpecialty { get; set; }
         public string? Workplace { get; set; }
@@ -30,5 +31,6 @@ namespace Contracts.DTO
         public double? Fine { get; set; }
 
         public ICollection<AddressDTO> Addresses { get; set; } = new List<AddressDTO>();
+        public ICollection<AwardDTO> Awards { get; set; } = new List<AwardDTO>();
     }
 }

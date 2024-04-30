@@ -11,8 +11,8 @@ namespace Services.Interfaces
     {
         Task<IEnumerable<PersonDTO>> GetAllPeople();
         Task<PersonDTO> GetPersonById(int personId);
-        Task<PersonDTO> Add(PersonForAddingDTO personDTO);
-        Task Update(int personId, PersonDTO personDTO);
+        Task<PersonDTO> Add(PersonForAddingDTO personDTO, string token);
+        Task Update(int personId, PersonDTO personDTO, string token);
         Task Delete(int personId);
     }
 }

@@ -16,6 +16,7 @@ namespace Contracts.DTO
         public string Nationality { get; set; }
         public string Sex { get; set; }
         public string MaritalStatus { get; set; }
+        public string EducationLevel { get; set; }
         public string Education { get; set; }
         public string? PublicSpecialty { get; set; }
         public string? Workplace { get; set; }

@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
-    public class Person
+    public class Person : BaseEntity
     {
-        public int Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string MiddleName { get; set; }
@@ -18,6 +17,7 @@ namespace Domain.Entities
         public string Sex { get; set; }
         public string MaritalStatus { get; set; }
         public string Education { get; set; }
+        public string EducationLevel { get; set; }
         public string? PublicSpecialty { get; set; }
         public string? Workplace { get; set; }
         public string TRSSC { get; set; }
@@ -30,5 +30,13 @@ namespace Domain.Entities
         public double? Fine { get; set; }
 
         public ICollection<Address> Addresses { get; set; }
+        public ICollection<Award> Awards { get; set; }
+        public ICollection<CombatParticipation> CombatParticipations { get; set; }
+        public ICollection<Document> Documents { get; set; }
+        public File Files { get; set; }
+        public ICollection<Injurie> Injuries { get; set; }
+        public MedicalData MedicalData { get; set; }
+        public Parameter Parameter { get; set; }
+        public ICollection<ServiceHistory> ServiceHistories { get; set; }
     }
 }

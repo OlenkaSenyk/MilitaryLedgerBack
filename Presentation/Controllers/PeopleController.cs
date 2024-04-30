@@ -1,4 +1,5 @@
 ﻿using Contracts.DTO;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
 using System;
@@ -10,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace Presentation.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/people")]
     public class PeopleController : ControllerBase
@@ -34,14 +36,16 @@ namespace Presentation.Controllers
         [HttpPost]
         public async Task<IActionResult> AddPerson([FromBody] PersonForAddingDTO personForAddingDTO)
         {
-            var personDTO = await _serviceManager.PeopleService.Add(personForAddingDTO);
+            string token = Request.Headers["Authorization"].ToString().Split(' ')[1];
+            var personDTO = await _serviceManager.PeopleService.Add(personForAddingDTO, token);
             return CreatedAtAction(nameof(GetPersonById), new { personId = personDTO.Id }, personDTO);
         }
 
-        [HttpPut("{personID}")]
+        [HttpPut("{personId}")]
         public async Task<IActionResult> UpdatePerson(int personId, [FromBody] PersonDTO personDTO)
         {
-            await _serviceManager.PeopleService.Update(personId, personDTO);
+            string token = Request.Headers["Authorization"].ToString().Split(' ')[1];
+            await _serviceManager.PeopleService.Update(personId, personDTO, token);
             return NoContent();
         }
 

@@ -27,12 +27,32 @@ namespace Infrastructure.Repositories
 
         public async Task<Person> GetPersonById(int personId)
         {
-            return await _context.People.Include(x => x.Addresses).FirstOrDefaultAsync(x => x.Id == personId);
+            return await _context.People
+                .Include(x => x.Addresses)
+                .Include(x => x.Awards)
+                .Include(x => x.CombatParticipations)
+                .Include(x => x.Documents)
+                .Include(x => x.Files)
+                .Include(x => x.Injuries)
+                .Include(x => x.MedicalData)
+                .Include(x => x.Parameter)
+                .Include(x => x.ServiceHistories)
+                .FirstOrDefaultAsync(x => x.Id == personId);
         }
 
         public async Task<IEnumerable<Person>> GetAllPeople()
         {
-            return await _context.People.Include(x => x.Addresses).ToListAsync();
+            return await _context.People
+                .Include(x => x.Addresses)
+                .Include(x => x.Awards)
+                .Include(x => x.CombatParticipations)
+                .Include(x => x.Documents)
+                .Include(x => x.Files)
+                .Include(x => x.Injuries)
+                .Include(x => x.MedicalData)
+                .Include(x => x.Parameter)
+                .Include(x => x.ServiceHistories)
+                .ToListAsync();
         }
     }
 }
