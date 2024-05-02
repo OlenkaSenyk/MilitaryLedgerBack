@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Contracts.DTO;
 using Domain.Interfaces;
+using Microsoft.AspNetCore.DataProtection;
 using Services.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -24,27 +25,30 @@ namespace Services.Services
         private readonly Lazy<IChildItemService<ParameterDTO, ParameterForAddingDTO>> _lazyParametersService;
         private readonly Lazy<IChildItemService<FileDTO, FileForAddingDTO>> _lazyFilesService;
         private readonly Lazy<IChildItemService<MedicalDataDTO, MedicalDataForAddingDTO>> _lazyMedicalDatasService;
+        private readonly Lazy<IAnalysisService> _lazyAnalysisService;
 
-        public ServiceManager(IRepositoryManager repositoryManager, IMapper mapper, string key)
+        public ServiceManager(IRepositoryManager repositoryManager, IMapper mapper, IDataProtectionProvider provider, string key)
         {
-            _lazyPeopleService = new Lazy<IPeopleService>(() => new PeopleService(repositoryManager, mapper));
-            _lazyLoginService = new Lazy<ILoginService>(() => new LoginService(repositoryManager, mapper, key));
+            _lazyPeopleService = new Lazy<IPeopleService>(() => new PeopleService(repositoryManager, mapper, provider));
+            _lazyLoginService = new Lazy<ILoginService>(() => new LoginService(repositoryManager, mapper, key, provider));
             _lazyAddressesService = new Lazy<IChildItemService<AddressDTO, AddressForAddingDTO>>
-                (() => new AddressesService(repositoryManager, mapper));
+                (() => new AddressesService(repositoryManager, mapper, provider));
             _lazyAwardsService = new Lazy<IChildItemService<AwardDTO, AwardForAddingDTO>>
                 (() => new AwardsService(repositoryManager, mapper));
             _lazyInjuriesService = new Lazy<IChildItemService<InjurieDTO, InjurieForAddingDTO>>
-                (() => new InjuriesService(repositoryManager, mapper));
+                (() => new InjuriesService(repositoryManager, mapper, provider));
             _lazyServiceHistoriesService = new Lazy<IChildItemService<ServiceHistoryDTO, ServiceHistoryForAddingDTO>>
-                (() => new ServiceHistoriesService(repositoryManager, mapper));
+                (() => new ServiceHistoriesService(repositoryManager, mapper, provider));
             _lazyCombatParticipationsService = new Lazy<IChildItemService<CombatParticipationDTO, 
-                CombatParticipationForAddingDTO>>(() => new CombatParticipationsService(repositoryManager, mapper));
+                CombatParticipationForAddingDTO>>(() => new CombatParticipationsService(repositoryManager, mapper, provider));
             _lazyParametersService = new Lazy<IChildItemService<ParameterDTO, ParameterForAddingDTO>>
                 (() => new ParametersService(repositoryManager, mapper));
             _lazyMedicalDatasService = new Lazy<IChildItemService<MedicalDataDTO, MedicalDataForAddingDTO>>
-                (() => new MedicalDatasService(repositoryManager, mapper));
+                (() => new MedicalDatasService(repositoryManager, mapper, provider));
             _lazyFilesService = new Lazy<IChildItemService<FileDTO, FileForAddingDTO>>
-                (() => new FilesService(repositoryManager, mapper));
+                (() => new FilesService(repositoryManager, mapper, provider));
+            _lazyAnalysisService = new Lazy<IAnalysisService>
+                (() => new AnalysisService(repositoryManager, mapper, provider));
         }
 
         public IPeopleService PeopleService => _lazyPeopleService.Value;
@@ -60,5 +64,6 @@ namespace Services.Services
         public IChildItemService<FileDTO, FileForAddingDTO> FilesService => _lazyFilesService.Value;
         public IChildItemService<MedicalDataDTO, MedicalDataForAddingDTO> 
             MedicalDatasService => _lazyMedicalDatasService.Value;
+        public IAnalysisService AnalysisService => _lazyAnalysisService.Value;
     }
 }

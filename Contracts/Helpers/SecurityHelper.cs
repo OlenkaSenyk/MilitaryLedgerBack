@@ -1,4 +1,5 @@
 ﻿using Domain.Entities;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
@@ -64,6 +65,76 @@ namespace Contracts.Helpers
         public static bool VerifyHash(string text, string hash)
         {
             return BCrypt.Net.BCrypt.Verify(text, hash);
+        }
+
+        public static int DecryptInteger(string ciphertext, Func<string, string> protector)
+        {
+            return int.Parse(protector(ciphertext));
+        }
+
+        public static DateOnly DecryptDate(string ciphertext, Func<string, string> protector)
+        {
+            return DateOnly.Parse(protector(ciphertext));
+        }
+
+        public static bool DecryptBool(string ciphertext, Func<string, string> protector)
+        {
+            return bool.Parse(protector(ciphertext));
+        }
+
+        public static void ProtectFields(object source, object destination, string[] fields, Func<string, string> protector)
+        {
+            foreach (var field in fields)
+            {
+                var sourceValue = source.GetType().GetProperty(field)?.GetValue(source)?.ToString();
+                var destinationProperty = destination.GetType().GetProperty(field);
+                if (destinationProperty != null)
+                {
+                    var protectedValue = protector(sourceValue);
+                    destinationProperty.SetValue(destination, protectedValue);
+                }
+            }
+        }
+
+        public static void UnprotectFields(object source, object destination, string[] fields, Func<string, string> protector)
+        {
+            foreach (var field in fields)
+            {
+                try
+                {
+                    var sourceValue = source.GetType().GetProperty(field)?.GetValue(source)?.ToString();
+                    var destinationProperty = destination.GetType().GetProperty(field);
+                    var fieldType = destinationProperty.PropertyType;
+
+                    object protectedValue = null;
+
+                    if (sourceValue != null)
+                    {
+                        if (fieldType == typeof(int?))
+                            protectedValue = DecryptInteger(sourceValue, protector);
+                        else if (fieldType == typeof(DateOnly))
+                            protectedValue = DecryptDate(sourceValue, protector);
+                        else if (fieldType == typeof(bool))
+                            protectedValue = DecryptBool(sourceValue, protector);
+                        else
+                            protectedValue = protector(sourceValue);
+                    }
+
+                    destinationProperty.SetValue(destination, protectedValue);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error decrypting string: {ex.Message}");
+                }
+            }
+        }
+
+        public static string[] GetAllFieldsNames(object source)
+        {
+            var sourceType = source.GetType();
+            var properties = sourceType.GetProperties();
+            var fieldNames = properties.Select(property => property.Name).ToArray();
+            return fieldNames;
         }
     }
 }

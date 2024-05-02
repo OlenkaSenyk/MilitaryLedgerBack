@@ -8,8 +8,8 @@ namespace Domain.Entities
 {
     public class CombatParticipation : BaseEntity
     {
-        public DateOnly StartDate { get; set; }
-        public DateOnly EndDate { get; set; }
+        public string StartDate { get; set; }
+        public string EndDate { get; set; }
         public string Location { get; set; }
         public string OperationType { get; set; }
 

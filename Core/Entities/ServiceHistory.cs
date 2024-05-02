@@ -8,8 +8,8 @@ namespace Domain.Entities
 {
     public class ServiceHistory : BaseEntity
     {
-        public DateOnly StartDate { get; set; }
-        public DateOnly EndDate { get; set; }
+        public string StartDate { get; set; }
+        public string EndDate { get; set; }
         public string MilitaryRank { get; set; }
         public string MilitaryCategory { get; set; }
         public string MilitaryBranch { get; set; }

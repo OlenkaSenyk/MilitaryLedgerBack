@@ -25,12 +25,9 @@ namespace Contracts.DTO
         public DateOnly RegistrationDate { get; set; }
         public DateOnly? DischargeDate { get; set; }
         public string? DischargeReason { get; set; }
-        public byte[] Signature { get; set; }
+        public string Signature { get; set; }
         public bool NeedMMC { get; set; }
         public DateOnly? LastMMC { get; set; }
         public double? Fine { get; set; }
-
-        public ICollection<AddressDTO> Addresses { get; set; } = new List<AddressDTO>();
-        public ICollection<AwardDTO> Awards { get; set; } = new List<AwardDTO>();
     }
 }

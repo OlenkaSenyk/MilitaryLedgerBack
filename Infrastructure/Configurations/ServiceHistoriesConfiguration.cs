@@ -18,10 +18,10 @@ namespace Infrastructure.Configurations
             builder.Property(service => service.Id).ValueGeneratedOnAdd();
             builder.Property(service => service.StartDate).IsRequired();
             builder.Property(service => service.EndDate).IsRequired();
-            builder.Property(service => service.MilitaryRank).HasMaxLength(200).IsRequired();
-            builder.Property(service => service.MilitaryCategory).HasMaxLength(200).IsRequired();
-            builder.Property(service => service.MilitaryBranch).HasMaxLength(200).IsRequired();
-            builder.Property(service => service.MilitaryUnit).HasMaxLength(200).IsRequired();
+            builder.Property(service => service.MilitaryRank).IsRequired();
+            builder.Property(service => service.MilitaryCategory).IsRequired();
+            builder.Property(service => service.MilitaryBranch).IsRequired();
+            builder.Property(service => service.MilitaryUnit).IsRequired();
             builder.Property(service => service.CreatedAt).IsRequired();
             builder.Property(service => service.CreatedById).IsRequired();
             builder.Property(service => service.LastUpdatedAt).IsRequired();

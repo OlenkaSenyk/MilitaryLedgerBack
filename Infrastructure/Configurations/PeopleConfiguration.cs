@@ -17,11 +17,11 @@ namespace Infrastructure.Configurations
             builder.ToTable("People");
             builder.HasKey(person => person.Id);
             builder.Property(person => person.Id).ValueGeneratedOnAdd();
-            builder.Property(person => person.FirstName).HasMaxLength(60).IsRequired();
-            builder.Property(person => person.LastName).HasMaxLength(60).IsRequired();
-            builder.Property(person => person.MiddleName).HasMaxLength(60).IsRequired();
+            builder.Property(person => person.FirstName).IsRequired();
+            builder.Property(person => person.LastName).IsRequired();
+            builder.Property(person => person.MiddleName).IsRequired();
             builder.Property(person => person.DateOfBirth).IsRequired();
-            builder.Property(person => person.Phone).HasMaxLength(15).IsRequired();
+            builder.Property(person => person.Phone).IsRequired();
             builder.Property(person => person.Nationality).HasMaxLength(15).IsRequired();
             builder.Property(person => person.Sex).HasMaxLength(15).IsRequired();
             builder.Property(person => person.MaritalStatus).HasMaxLength(15).IsRequired();

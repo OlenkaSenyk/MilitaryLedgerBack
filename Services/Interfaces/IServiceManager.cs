@@ -19,5 +19,6 @@ namespace Services.Interfaces
         IChildItemService<ParameterDTO, ParameterForAddingDTO> ParametersService { get; }
         IChildItemService<MedicalDataDTO, MedicalDataForAddingDTO> MedicalDatasService { get; }
         IChildItemService<FileDTO, FileForAddingDTO> FilesService { get; }
+        IAnalysisService AnalysisService { get; }
     }
 }

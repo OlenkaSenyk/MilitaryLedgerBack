@@ -8,7 +8,7 @@ namespace Domain.Entities
 {
     public class Injurie : BaseEntity
     {
-        public DateOnly Date { get; set; }
+        public string Date { get; set; }
         public string Type { get; set; }
         public string Location { get; set; }
         public string MedicalAssistance { get; set; }

@@ -5,6 +5,7 @@ using Infrastructure;
 using Infrastructure.Repositories;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
@@ -24,6 +25,7 @@ namespace MilitaryLedgerApi
             builder.Services.AddControllers()
                 .AddApplicationPart(typeof(Presentation.AssemblyReference).Assembly);
 
+            builder.Services.AddDataProtection();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(options =>
             {
@@ -76,7 +78,8 @@ namespace MilitaryLedgerApi
                 options.UseSqlServer(builder.Configuration.GetConnectionString("Database")));
 
             builder.Services.AddScoped<IServiceManager>(x => 
-                new ServiceManager(x.GetRequiredService<IRepositoryManager>(), x.GetRequiredService<IMapper>(), key));
+                new ServiceManager(x.GetRequiredService<IRepositoryManager>(), x.GetRequiredService<IMapper>(), 
+                x.GetRequiredService<IDataProtectionProvider>(), key));
             builder.Services.AddScoped<IRepositoryManager, RepositoryManager>();
 
             builder.Services.AddAutoMapper(typeof(MappingHelper));

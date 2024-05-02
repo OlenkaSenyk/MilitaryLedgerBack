@@ -18,8 +18,8 @@ namespace Infrastructure.Configurations
             builder.Property(participation => participation.Id).ValueGeneratedOnAdd();
             builder.Property(participation => participation.StartDate).IsRequired();
             builder.Property(participation => participation.EndDate).IsRequired();
-            builder.Property(participation => participation.Location).HasMaxLength(500).IsRequired();
-            builder.Property(participation => participation.OperationType).HasMaxLength(200).IsRequired();
+            builder.Property(participation => participation.Location).IsRequired();
+            builder.Property(participation => participation.OperationType).IsRequired();
             builder.Property(participation => participation.CreatedAt).IsRequired();
             builder.Property(participation => participation.CreatedById).IsRequired();
             builder.Property(participation => participation.LastUpdatedAt).IsRequired();

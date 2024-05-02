@@ -13,8 +13,8 @@ namespace Domain.Entities
         public string? Region { get; set; }
         public string Street { get; set; }
         public string House { get; set; }
-        public int? Entrance { get; set; }
-        public int? Apartment { get; set; }
+        public string? Entrance { get; set; }
+        public string? Apartment { get; set; }
         public string ResidenceOrRegistration { get; set; }
 
         public int PersonId { get; set; }

@@ -11,7 +11,7 @@ namespace Domain.Entities
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string MiddleName { get; set; }
-        public DateOnly DateOfBirth { get; set; }
+        public string DateOfBirth { get; set; }
         public string Phone { get; set; }
         public string Nationality { get; set; }
         public string Sex { get; set; }
@@ -24,7 +24,7 @@ namespace Domain.Entities
         public DateOnly RegistrationDate { get; set; }
         public DateOnly? DischargeDate { get; set; }
         public string? DischargeReason { get; set; }
-        public byte[] Signature { get; set; }
+        public string Signature { get; set; }
         public bool NeedMMC { get; set; }
         public DateOnly? LastMMC { get; set; }
         public double? Fine { get; set; }

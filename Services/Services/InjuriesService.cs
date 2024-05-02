@@ -3,6 +3,7 @@ using Contracts.DTO;
 using Contracts.Helpers;
 using Domain.Entities;
 using Domain.Interfaces;
+using Microsoft.AspNetCore.DataProtection;
 using Services.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -16,11 +17,13 @@ namespace Services.Services
     {
         private readonly IRepositoryManager _repositoryManager;
         private readonly IMapper _mapper;
+        private readonly IDataProtector _protector;
 
-        public InjuriesService(IRepositoryManager repositoryManager, IMapper mapper)
+        public InjuriesService(IRepositoryManager repositoryManager, IMapper mapper, IDataProtectionProvider provider)
         {
             _repositoryManager = repositoryManager;
             _mapper = mapper;
+            _protector = provider.CreateProtector(GetType().Name);
         }
 
         public async Task<InjurieDTO> Add(int personId, InjurieForAddingDTO injurieDTO, string token)
@@ -32,7 +35,10 @@ namespace Services.Services
             }
             int userId = SecurityHelper.GetClaimsFromToken(token);
 
-            var injurie = _mapper.Map<Injurie>(injurieDTO);
+            var injurie = new Injurie();
+            string[] fields = SecurityHelper.GetAllFieldsNames(injurieDTO);
+            SecurityHelper.ProtectFields(injurieDTO, injurie, fields, _protector.Protect);
+
             injurie.PersonId = personId;
             injurie.CreatedAt = DateTime.Now;
             injurie.CreatedById = userId;
@@ -41,7 +47,11 @@ namespace Services.Services
             _repositoryManager.InjuriesRepository.Add(injurie);
 
             await _repositoryManager.UnitOfWork.SaveChanges();
-            return _mapper.Map<InjurieDTO>(injurie);
+
+            var injurieForReturn = _mapper.Map<InjurieDTO>(injurieDTO);
+            injurieForReturn.Id = injurie.Id;
+            injurieForReturn.PersonId = personId;
+            return injurieForReturn;
         }
 
         public async Task Delete(int injurieId)
@@ -72,39 +82,56 @@ namespace Services.Services
             {
                 //throw new AddressNotFoundException(addressId);
             }
-            var injurieDTO = _mapper.Map<InjurieDTO>(injurie);
+            var injurieDTO = new InjurieDTO();
+            string[] fields = SecurityHelper.GetAllFieldsNames(new InjurieForAddingDTO());
+            SecurityHelper.UnprotectFields(injurie, injurieDTO, fields, _protector.Unprotect);
+            injurieDTO.Id = injurie.Id;
+            injurieDTO.PersonId = injurie.PersonId;
             return injurieDTO;
         }
 
         public async Task<IEnumerable<InjurieDTO>> GetByPersonId(int personId)
         {
             var injuries = await _repositoryManager.InjuriesRepository.GetByPersonId(personId);
-            return _mapper.Map<List<InjurieDTO>>(injuries);
+            if (injuries == null || !injuries.Any())
+            {
+                return Enumerable.Empty<InjurieDTO>();
+            }
+
+            var injurieDTOs = new List<InjurieDTO>();
+            string[] fields = SecurityHelper.GetAllFieldsNames(new InjurieForAddingDTO());
+            foreach (var injurie in injuries)
+            {
+                var injurieDTO = new InjurieDTO();
+                SecurityHelper.UnprotectFields(injurie, injurieDTO, fields, _protector.Unprotect);
+                injurieDTO.Id = injurie.Id;
+                injurieDTO.PersonId = injurie.PersonId;
+                injurieDTOs.Add(injurieDTO);
+            }
+
+            return injurieDTOs;
         }
 
         public async Task<IEnumerable<InjurieDTO>> GetAll()
         {
             var injuries = await _repositoryManager.InjuriesRepository.GetAll();
-            return _mapper.Map<List<InjurieDTO>>(injuries);
-        }
-
-        public async Task Update(int injurieId, InjurieDTO injurieDTO, string token)
-        {
-            var injurie = await _repositoryManager.InjuriesRepository.GetById(injurieId);
-            if (injurie is null)
+            if (injuries == null || !injuries.Any())
             {
-                //throw new AddressNotFoundException(addressId);
+                return Enumerable.Empty<InjurieDTO>();
             }
-            int userId = SecurityHelper.GetClaimsFromToken(token);
-            injurie.Location = injurieDTO.Location;
-            injurie.Date = injurieDTO.Date;
-            injurie.Notes = injurieDTO.Notes;
-            injurie.MedicalAssistance = injurieDTO.MedicalAssistance;
-            injurie.Type = injurieDTO.Type;
-            injurie.LastUpdatedAt = DateTime.Now;
-            injurie.LastUpdatedById = userId;
 
-            await _repositoryManager.UnitOfWork.SaveChanges();
+            var injurieDTOs = new List<InjurieDTO>();
+            string[] fields = SecurityHelper.GetAllFieldsNames(new InjurieForAddingDTO());
+            foreach (var injurie in injuries)
+            {
+                var injurieDTO = new InjurieDTO();
+                SecurityHelper.UnprotectFields(injurie, injurieDTO, fields, _protector.Unprotect);
+                injurieDTO.Id = injurie.Id;
+                injurieDTO.PersonId = injurie.PersonId;
+                injurieDTOs.Add(injurieDTO);
+            }
+
+            return injurieDTOs;
         }
     }
 }

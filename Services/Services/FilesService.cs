@@ -3,6 +3,7 @@ using Contracts.DTO;
 using Contracts.Helpers;
 using Domain.Entities;
 using Domain.Interfaces;
+using Microsoft.AspNetCore.DataProtection;
 using Services.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -17,11 +18,13 @@ namespace Services.Services
     {
         private readonly IRepositoryManager _repositoryManager;
         private readonly IMapper _mapper;
+        private readonly IDataProtector _protector;
 
-        public FilesService(IRepositoryManager repositoryManager, IMapper mapper)
+        public FilesService(IRepositoryManager repositoryManager, IMapper mapper, IDataProtectionProvider provider)
         {
             _repositoryManager = repositoryManager;
             _mapper = mapper;
+            _protector = provider.CreateProtector(GetType().Name);
         }
 
         public async Task<FileDTO> Add(int personId, FileForAddingDTO fileDTO, string token)
@@ -33,7 +36,11 @@ namespace Services.Services
             }
             int userId = SecurityHelper.GetClaimsFromToken(token);
 
-            var file = _mapper.Map<File>(fileDTO);
+            var tempFile = _mapper.Map<FileDTO>(fileDTO);
+            var file = new File();
+            string[] fields = SecurityHelper.GetAllFieldsNames(fileDTO);
+            SecurityHelper.ProtectFields(tempFile, file, fields, _protector.Protect);
+
             file.PersonId = personId;
             file.CreatedAt = DateTime.Now;
             file.CreatedById = userId;
@@ -42,7 +49,11 @@ namespace Services.Services
             _repositoryManager.FilesRepository.Add(file);
 
             await _repositoryManager.UnitOfWork.SaveChanges();
-            return _mapper.Map<FileDTO>(file);
+
+            var fileForReturn = _mapper.Map<FileDTO, FileDTO>(tempFile);
+            fileForReturn.Id = file.Id;
+            fileForReturn.PersonId = personId;
+            return fileForReturn;
         }
 
         public async Task Delete(int fileId)
@@ -73,39 +84,56 @@ namespace Services.Services
             {
                 //throw new AddressNotFoundException(addressId);
             }
-            var fileDTO = _mapper.Map<FileDTO>(file);
+            var fileDTO = new FileDTO();
+            string[] fields = SecurityHelper.GetAllFieldsNames(new FileForAddingDTO());
+            SecurityHelper.UnprotectFields(file, fileDTO, fields, _protector.Unprotect);
+            fileDTO.Id = file.Id;
+            fileDTO.PersonId = file.PersonId;
             return fileDTO;
         }
 
         public async Task<IEnumerable<FileDTO>> GetByPersonId(int personId)
         {
             var files = await _repositoryManager.FilesRepository.GetByPersonId(personId);
-            return _mapper.Map<List<FileDTO>>(files);
+            if (files == null || !files.Any())
+            {
+                return Enumerable.Empty<FileDTO>();
+            }
+
+            var fileDTOs = new List<FileDTO>();
+            string[] fields = SecurityHelper.GetAllFieldsNames(new FileForAddingDTO());
+            foreach (var file in files)
+            {
+                var fileDTO = new FileDTO();
+                SecurityHelper.UnprotectFields(file, fileDTO, fields, _protector.Unprotect);
+                fileDTO.Id = file.Id;
+                fileDTO.PersonId = file.PersonId;
+                fileDTOs.Add(fileDTO);
+            }
+
+            return fileDTOs;
         }
 
         public async Task<IEnumerable<FileDTO>> GetAll()
         {
-            var file = await _repositoryManager.FilesRepository.GetAll();
-            return _mapper.Map<List<FileDTO>>(file);
-        }
-
-        public async Task Update(int fileId, FileDTO fileDTO, string token)
-        {
-            var file = await _repositoryManager.FilesRepository.GetById(fileId);
-            if (file is null)
+            var files = await _repositoryManager.FilesRepository.GetAll();
+            if (files == null || !files.Any())
             {
-                //throw new AddressNotFoundException(addressId);
+                return Enumerable.Empty<FileDTO>();
             }
-            int userId = SecurityHelper.GetClaimsFromToken(token);
-            file.Photo = fileDTO.Photo;
-            file.Passport = fileDTO.Passport;
-            file.IndividualTaxNumber = fileDTO.IndividualTaxNumber;
-            file.ResidencePermit = fileDTO.ResidencePermit;
-            file.MedicalCertificate = fileDTO.MedicalCertificate;
-            file.LastUpdatedAt = DateTime.Now;
-            file.LastUpdatedById = userId;
 
-            await _repositoryManager.UnitOfWork.SaveChanges();
+            var fileDTOs = new List<FileDTO>();
+            string[] fields = SecurityHelper.GetAllFieldsNames(new FileForAddingDTO());
+            foreach (var file in files)
+            {
+                var fileDTO = new FileDTO();
+                SecurityHelper.UnprotectFields(file, fileDTO, fields, _protector.Unprotect);
+                fileDTO.Id = file.Id;
+                fileDTO.PersonId = file.PersonId;
+                fileDTOs.Add(fileDTO);
+            }
+
+            return fileDTOs;
         }
     }
 }

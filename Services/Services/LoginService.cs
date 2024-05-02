@@ -3,10 +3,12 @@ using Contracts.DTO;
 using Contracts.Helpers;
 using Domain.Entities;
 using Domain.Interfaces;
+using Microsoft.AspNetCore.DataProtection;
 using Services.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -17,26 +19,33 @@ namespace Services.Services
         private readonly IRepositoryManager _repositoryManager;
         private readonly IMapper _mapper;
         private string _secretKey;
+        private readonly IDataProtector _protector;
+        private readonly string[] fields;
 
-        public LoginService(IRepositoryManager repositoryManager, IMapper mapper, string secretKey)
+        public LoginService(IRepositoryManager repositoryManager, IMapper mapper, string secretKey, IDataProtectionProvider provider)
         {
             _repositoryManager = repositoryManager;
             _mapper = mapper;
             _secretKey = secretKey;
+            _protector = provider.CreateProtector(GetType().Name);
+            fields = new string[] { "FirstName", "LastName", "MiddleName", "Password", "Phone", "Role" };
         }
 
         public async Task<LoginResponseDTO> Login(LoginRequestDTO request)
         {
             var user = await _repositoryManager.UsersRepository.GetUserByEmail(request.Email);
-
-            if (user == null || !SecurityHelper.VerifyHash(request.Password, user.Password))
+            var tempPassword = _protector.Unprotect(user.Password);
+            if (user == null || !SecurityHelper.VerifyHash(request.Password, tempPassword))
             {
                 return null;
             }
-
-            string token = SecurityHelper.CreateToken(_secretKey, user.Id.ToString(), user.Role);
-            LoginResponseDTO response = _mapper.Map<LoginResponseDTO>(user);
+            var role = _protector.Unprotect(user.Role);
+            string token = SecurityHelper.CreateToken(_secretKey, user.Id.ToString(), role);
+            LoginResponseDTO response = new LoginResponseDTO();
+            SecurityHelper.ProtectFields(user, response, fields, _protector.Unprotect);
             response.Token = token;
+            response.Id = user.Id;
+            response.Email = user.Email;
 
             return response;
         }
@@ -46,10 +55,14 @@ namespace Services.Services
             var user = await _repositoryManager.UsersRepository.GetUserByEmail(request.Email);
             if (user != null)
             {
+                return null;
                 //throw new UserAlreadyExist(userId);
             }
 
-            var newUser = _mapper.Map<User>(request);
+            request.Password = SecurityHelper.GetHashedString(request.Password);
+            var newUser = new User();
+            newUser.Email = request.Email;
+            SecurityHelper.ProtectFields(request, newUser, fields, _protector.Protect);
 
             if (token != null)
             {
@@ -57,6 +70,7 @@ namespace Services.Services
                 newUser.CreatedById = userId;
                 newUser.LastUpdatedById = userId;
             }
+
             newUser.CreatedAt = DateTime.Now;
             newUser.LastUpdatedAt = DateTime.Now;
 

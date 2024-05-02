@@ -17,9 +17,9 @@ namespace Infrastructure.Configurations
             builder.HasKey(injurie => injurie.Id);
             builder.Property(injurie => injurie.Id).ValueGeneratedOnAdd();
             builder.Property(injurie => injurie.Date).IsRequired();
-            builder.Property(injurie => injurie.Type).HasMaxLength(200).IsRequired();
-            builder.Property(injurie => injurie.Location).HasMaxLength(500).IsRequired();
-            builder.Property(injurie => injurie.MedicalAssistance).HasMaxLength(200).IsRequired();
+            builder.Property(injurie => injurie.Type).IsRequired();
+            builder.Property(injurie => injurie.Location).IsRequired();
+            builder.Property(injurie => injurie.MedicalAssistance).IsRequired();
             builder.Property(injurie => injurie.Notes);
             builder.Property(injurie => injurie.CreatedAt).IsRequired();
             builder.Property(injurie => injurie.CreatedById).IsRequired();

@@ -3,6 +3,7 @@ using Contracts.DTO;
 using Contracts.Helpers;
 using Domain.Entities;
 using Domain.Interfaces;
+using Microsoft.AspNetCore.DataProtection;
 using Services.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -16,11 +17,13 @@ namespace Services.Services
     {
         private readonly IRepositoryManager _repositoryManager;
         private readonly IMapper _mapper;
+        private readonly IDataProtector _protector;
 
-        public ServiceHistoriesService(IRepositoryManager repositoryManager, IMapper mapper)
+        public ServiceHistoriesService(IRepositoryManager repositoryManager, IMapper mapper, IDataProtectionProvider provider)
         {
             _repositoryManager = repositoryManager;
             _mapper = mapper;
+            _protector = provider.CreateProtector(GetType().Name);
         }
 
         public async Task<ServiceHistoryDTO> Add(int personId, ServiceHistoryForAddingDTO serviceDTO, string token)
@@ -32,7 +35,10 @@ namespace Services.Services
             }
             int userId = SecurityHelper.GetClaimsFromToken(token);
 
-            var service = _mapper.Map<ServiceHistory>(serviceDTO);
+            var service = new ServiceHistory();
+            string[] fields = SecurityHelper.GetAllFieldsNames(serviceDTO);
+            SecurityHelper.ProtectFields(serviceDTO, service, fields, _protector.Protect);
+
             service.PersonId = personId;
             service.CreatedAt = DateTime.Now;
             service.CreatedById = userId;
@@ -41,7 +47,11 @@ namespace Services.Services
             _repositoryManager.ServiceHistoriesRepository.Add(service);
 
             await _repositoryManager.UnitOfWork.SaveChanges();
-            return _mapper.Map<ServiceHistoryDTO>(service);
+
+            var serviceForReturn = _mapper.Map<ServiceHistoryDTO>(serviceDTO);
+            serviceForReturn.Id = service.Id;
+            serviceForReturn.PersonId = personId;
+            return serviceForReturn;
         }
 
         public async Task Delete(int serviceId)
@@ -67,45 +77,61 @@ namespace Services.Services
 
         public async Task<ServiceHistoryDTO> GetById(int serviceId)
         {
-            var service = await _repositoryManager.ServiceHistoriesRepository.GetById(serviceId);
+            var service = await _repositoryManager.AddressesRepository.GetById(serviceId);
             if (service is null)
             {
                 //throw new AddressNotFoundException(addressId);
             }
-            var serviceDTO = _mapper.Map<ServiceHistoryDTO>(service);
+            var serviceDTO = new ServiceHistoryDTO();
+            string[] fields = SecurityHelper.GetAllFieldsNames(new ServiceHistoryForAddingDTO());
+            SecurityHelper.UnprotectFields(service, serviceDTO, fields, _protector.Unprotect);
+            serviceDTO.Id = service.Id;
+            serviceDTO.PersonId = service.PersonId;
             return serviceDTO;
         }
 
         public async Task<IEnumerable<ServiceHistoryDTO>> GetByPersonId(int personId)
         {
             var services = await _repositoryManager.ServiceHistoriesRepository.GetByPersonId(personId);
-            return _mapper.Map<List<ServiceHistoryDTO>>(services);
+            if (services == null || !services.Any())
+            {
+                return Enumerable.Empty<ServiceHistoryDTO>();
+            }
+
+            var serviceDTOs = new List<ServiceHistoryDTO>();
+            string[] fields = SecurityHelper.GetAllFieldsNames(new ServiceHistoryForAddingDTO());
+            foreach (var service in services)
+            {
+                var serviceDTO = new ServiceHistoryDTO();
+                SecurityHelper.UnprotectFields(service, serviceDTO, fields, _protector.Unprotect);
+                serviceDTO.Id = service.Id;
+                serviceDTO.PersonId = service.PersonId;
+                serviceDTOs.Add(serviceDTO);
+            }
+
+            return serviceDTOs;
         }
 
         public async Task<IEnumerable<ServiceHistoryDTO>> GetAll()
         {
-            var service = await _repositoryManager.ServiceHistoriesRepository.GetAll();
-            return _mapper.Map<List<ServiceHistoryDTO>>(service);
-        }
-
-        public async Task Update(int serviceId, ServiceHistoryDTO serviceDTO, string token)
-        {
-            var service = await _repositoryManager.ServiceHistoriesRepository.GetById(serviceId);
-            if (service is null)
+            var services = await _repositoryManager.ServiceHistoriesRepository.GetAll();
+            if (services == null || !services.Any())
             {
-                //throw new AddressNotFoundException(addressId);
+                return Enumerable.Empty<ServiceHistoryDTO>();
             }
-            int userId = SecurityHelper.GetClaimsFromToken(token);
-            service.StartDate = serviceDTO.StartDate;
-            service.EndDate = serviceDTO.EndDate;
-            service.MilitaryBranch = serviceDTO.MilitaryBranch;
-            service.MilitaryCategory = serviceDTO.MilitaryCategory;
-            service.MilitaryRank = serviceDTO.MilitaryRank;
-            service.MilitaryUnit = serviceDTO.MilitaryUnit;
-            service.LastUpdatedAt = DateTime.Now;
-            service.LastUpdatedById = userId;
 
-            await _repositoryManager.UnitOfWork.SaveChanges();
+            var serviceDTOs = new List<ServiceHistoryDTO>();
+            string[] fields = SecurityHelper.GetAllFieldsNames(new ServiceHistoryForAddingDTO());
+            foreach (var service in services)
+            {
+                var serviceDTO = new ServiceHistoryDTO();
+                SecurityHelper.UnprotectFields(service, serviceDTO, fields, _protector.Unprotect);
+                serviceDTO.Id = service.Id;
+                serviceDTO.PersonId = service.PersonId;
+                serviceDTOs.Add(serviceDTO);
+            }
+
+            return serviceDTOs;
         }
     }
 }

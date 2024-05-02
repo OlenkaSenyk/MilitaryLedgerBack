@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using Contracts.Helpers;
+using Microsoft.AspNetCore.DataProtection;
 
 namespace Services.Services
 {
@@ -18,10 +19,12 @@ namespace Services.Services
     {
         private readonly IRepositoryManager _repositoryManager;
         private readonly IMapper _mapper;
+        private readonly IDataProtector _protector;
 
-        public AddressesService(IRepositoryManager repositoryManager, IMapper mapper) {
+        public AddressesService(IRepositoryManager repositoryManager, IMapper mapper, IDataProtectionProvider provider) {
             _repositoryManager = repositoryManager;
             _mapper = mapper;
+            _protector = provider.CreateProtector(GetType().Name);
         }
 
         public async Task<AddressDTO> Add(int personId, AddressForAddingDTO addressDTO, string token)
@@ -33,7 +36,10 @@ namespace Services.Services
             }
             int userId = SecurityHelper.GetClaimsFromToken(token);
 
-            var address = _mapper.Map<Address>(addressDTO);
+            var address = new Address();
+            string[] fields = SecurityHelper.GetAllFieldsNames(addressDTO);
+            SecurityHelper.ProtectFields(addressDTO, address, fields, _protector.Protect);
+
             address.PersonId = personId;
             address.CreatedAt = DateTime.Now;
             address.CreatedById = userId;
@@ -42,7 +48,11 @@ namespace Services.Services
             _repositoryManager.AddressesRepository.Add(address);
 
             await _repositoryManager.UnitOfWork.SaveChanges();
-            return _mapper.Map<AddressDTO>(address);
+
+            var addressForReturn = _mapper.Map<AddressDTO>(addressDTO);
+            addressForReturn.Id = address.Id;
+            addressForReturn.PersonId = personId;
+            return addressForReturn;
         }
 
         public async Task Delete(int addressId)
@@ -73,42 +83,56 @@ namespace Services.Services
             {
                 //throw new AddressNotFoundException(addressId);
             }
-            var addressDTO = _mapper.Map<AddressDTO>(address);
+            var addressDTO = new AddressDTO();
+            string[] fields = SecurityHelper.GetAllFieldsNames(new AddressForAddingDTO());
+            SecurityHelper.UnprotectFields(address, addressDTO, fields, _protector.Unprotect);
+            addressDTO.Id = address.Id;
+            addressDTO.PersonId = address.PersonId;
             return addressDTO;
         }
 
         public async Task<IEnumerable<AddressDTO>> GetByPersonId(int personId)
         {
             var addresses = await _repositoryManager.AddressesRepository.GetByPersonId(personId);
-            return _mapper.Map<List<AddressDTO>>(addresses);
+            if (addresses == null || !addresses.Any())
+            {
+                return Enumerable.Empty<AddressDTO>();
+            }
+
+            var addressDTOs = new List<AddressDTO>();
+            string[] fields = SecurityHelper.GetAllFieldsNames(new AddressForAddingDTO());
+            foreach (var address in addresses)
+            {
+                var addressDTO = new AddressDTO();
+                SecurityHelper.UnprotectFields(address, addressDTO, fields, _protector.Unprotect);
+                addressDTO.Id = address.Id;
+                addressDTO.PersonId = address.PersonId;
+                addressDTOs.Add(addressDTO);
+            }
+
+            return addressDTOs;
         }
 
         public async Task<IEnumerable<AddressDTO>> GetAll()
         {
-            var address = await _repositoryManager.AddressesRepository.GetAll();
-            return _mapper.Map<List<AddressDTO>>(address);
-        }
-
-        public async Task Update(int addressId, AddressDTO addressDTO, string token)
-        {
-            var address = await _repositoryManager.AddressesRepository.GetById(addressId);
-            if (address is null)
+            var addresses = await _repositoryManager.AddressesRepository.GetAll();
+            if (addresses == null || !addresses.Any())
             {
-                //throw new AddressNotFoundException(addressId);
+                return Enumerable.Empty<AddressDTO>();
             }
-            int userId = SecurityHelper.GetClaimsFromToken(token);
-            address.Country = addressDTO.Country;
-            address.City = addressDTO.City;
-            address.Region = addressDTO.Region;
-            address.Street = addressDTO.Street;
-            address.House = addressDTO.House;
-            address.Entrance = addressDTO.Entrance;
-            address.Apartment = addressDTO.Apartment;
-            address.ResidenceOrRegistration = addressDTO.ResidenceOrRegistration;
-            address.LastUpdatedAt = DateTime.Now;
-            address.LastUpdatedById = userId;
 
-            await _repositoryManager.UnitOfWork.SaveChanges();
+            var addressDTOs = new List<AddressDTO>();
+            string[] fields = SecurityHelper.GetAllFieldsNames(new AddressForAddingDTO());
+            foreach (var address in addresses)
+            {
+                var addressDTO = new AddressDTO();
+                SecurityHelper.UnprotectFields(address, addressDTO, fields, _protector.Unprotect);
+                addressDTO.Id = address.Id;
+                addressDTO.PersonId = address.PersonId;
+                addressDTOs.Add(addressDTO);
+            }
+
+            return addressDTOs;
         }
     }
 }

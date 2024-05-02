@@ -3,6 +3,7 @@ using Contracts.DTO;
 using Contracts.Helpers;
 using Domain.Entities;
 using Domain.Interfaces;
+using Microsoft.AspNetCore.DataProtection;
 using Services.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -17,11 +18,13 @@ namespace Services.Services
     {
         private readonly IRepositoryManager _repositoryManager;
         private readonly IMapper _mapper;
+        private readonly IDataProtector _protector;
 
-        public MedicalDatasService(IRepositoryManager repositoryManager, IMapper mapper)
+        public MedicalDatasService(IRepositoryManager repositoryManager, IMapper mapper, IDataProtectionProvider provider)
         {
             _repositoryManager = repositoryManager;
             _mapper = mapper;
+            _protector = provider.CreateProtector(GetType().Name);
         }
 
         public async Task<MedicalDataDTO> Add(int personId, MedicalDataForAddingDTO dataDTO, string token)
@@ -33,7 +36,10 @@ namespace Services.Services
             }
             int userId = SecurityHelper.GetClaimsFromToken(token);
 
-            var data = _mapper.Map<MedicalData>(dataDTO);
+            var data = new MedicalData();
+            string[] fields = SecurityHelper.GetAllFieldsNames(dataDTO);
+            SecurityHelper.ProtectFields(dataDTO, data, fields, _protector.Protect);
+
             data.PersonId = personId;
             data.CreatedAt = DateTime.Now;
             data.CreatedById = userId;
@@ -42,7 +48,11 @@ namespace Services.Services
             _repositoryManager.MedicalDatasRepository.Add(data);
 
             await _repositoryManager.UnitOfWork.SaveChanges();
-            return _mapper.Map<MedicalDataDTO>(data);
+
+            var dataForReturn = _mapper.Map<MedicalDataDTO>(dataDTO);
+            dataForReturn.Id = data.Id;
+            dataForReturn.PersonId = personId;
+            return dataForReturn;
         }
 
         public async Task Delete(int dataId)
@@ -73,39 +83,56 @@ namespace Services.Services
             {
                 //throw new AddressNotFoundException(addressId);
             }
-            var dataDTO = _mapper.Map<MedicalDataDTO>(data);
+            var dataDTO = new MedicalDataDTO();
+            string[] fields = SecurityHelper.GetAllFieldsNames(new MedicalDataForAddingDTO());
+            SecurityHelper.UnprotectFields(data, dataDTO, fields, _protector.Unprotect);
+            dataDTO.Id = data.Id;
+            dataDTO.PersonId = data.PersonId;
             return dataDTO;
         }
 
         public async Task<IEnumerable<MedicalDataDTO>> GetByPersonId(int personId)
         {
             var datas = await _repositoryManager.MedicalDatasRepository.GetByPersonId(personId);
-            return _mapper.Map<List<MedicalDataDTO>>(datas);
+            if (datas == null || !datas.Any())
+            {
+                return Enumerable.Empty<MedicalDataDTO>();
+            }
+
+            var dataDTOs = new List<MedicalDataDTO>();
+            string[] fields = SecurityHelper.GetAllFieldsNames(new MedicalDataForAddingDTO());
+            foreach (var data in datas)
+            {
+                var dataDTO = new MedicalDataDTO();
+                SecurityHelper.UnprotectFields(data, dataDTO, fields, _protector.Unprotect);
+                dataDTO.Id = data.Id;
+                dataDTO.PersonId = data.PersonId;
+                dataDTOs.Add(dataDTO);
+            }
+
+            return dataDTOs;
         }
 
         public async Task<IEnumerable<MedicalDataDTO>> GetAll()
         {
-            var data = await _repositoryManager.MedicalDatasRepository.GetAll();
-            return _mapper.Map<List<MedicalDataDTO>>(data);
-        }
-
-        public async Task Update(int dataId, MedicalDataDTO dataDTO, string token)
-        {
-            var data = await _repositoryManager.MedicalDatasRepository.GetById(dataId);
-            if (data is null)
+            var datas = await _repositoryManager.MedicalDatasRepository.GetAll();
+            if (datas == null || !datas.Any())
             {
-                //throw new AddressNotFoundException(addressId);
+                return Enumerable.Empty<MedicalDataDTO>();
             }
-            int userId = SecurityHelper.GetClaimsFromToken(token);
-            data.BloodType = dataDTO.BloodType;
-            data.BloodRh = dataDTO.BloodRh;
-            data.Eligibility = dataDTO.Eligibility;
-            data.Features = dataDTO.Features;
-            data.Notes = dataDTO.Notes;
-            data.LastUpdatedAt = DateTime.Now;
-            data.LastUpdatedById = userId;
 
-            await _repositoryManager.UnitOfWork.SaveChanges();
+            var dataDTOs = new List<MedicalDataDTO>();
+            string[] fields = SecurityHelper.GetAllFieldsNames(new MedicalDataForAddingDTO());
+            foreach (var data in datas)
+            {
+                var dataDTO = new MedicalDataDTO();
+                SecurityHelper.UnprotectFields(data, dataDTO, fields, _protector.Unprotect);
+                dataDTO.Id = data.Id;
+                dataDTO.PersonId = data.PersonId;
+                dataDTOs.Add(dataDTO);
+            }
+
+            return dataDTOs;
         }
     }
 }

@@ -10,6 +10,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.DataProtection;
+using System.Net;
 
 namespace Services.Services
 {
@@ -17,11 +19,15 @@ namespace Services.Services
     {
         private readonly IRepositoryManager _repositoryManager;
         private readonly IMapper _mapper;
+        private readonly IDataProtector _protector;
+        private readonly string[] fields;
 
-        public PeopleService(IRepositoryManager repositoryManager, IMapper mapper)
+        public PeopleService(IRepositoryManager repositoryManager, IMapper mapper, IDataProtectionProvider provider)
         {
             _repositoryManager = repositoryManager;
             _mapper = mapper;
+            _protector = provider.CreateProtector(GetType().Name);
+            fields = new string[] { "FirstName", "LastName", "MiddleName", "DateOfBirth", "Phone", "PublicSpecialty", "Workplace", "Signature" };
         }
 
         public async Task<PersonDTO> Add(PersonForAddingDTO personDTO, string token)
@@ -29,6 +35,8 @@ namespace Services.Services
             int userId = SecurityHelper.GetClaimsFromToken(token);
 
             var person = _mapper.Map<Person>(personDTO);
+            var personForReturn = _mapper.Map<PersonDTO>(personDTO);
+            SecurityHelper.ProtectFields(personForReturn, person, fields, _protector.Protect);
             person.CreatedAt = DateTime.Now;
             person.CreatedById = userId;
             person.LastUpdatedAt = DateTime.Now;
@@ -36,7 +44,9 @@ namespace Services.Services
             _repositoryManager.PeopleRepository.Add(person);
 
             await _repositoryManager.UnitOfWork.SaveChanges();
-            return _mapper.Map<PersonDTO>(person);
+
+            personForReturn.Id = person.Id;
+            return personForReturn;
         }
 
         public async Task Delete(int personId)
@@ -53,7 +63,14 @@ namespace Services.Services
         public async Task<IEnumerable<PersonDTO>> GetAllPeople()
         {
             var people = await _repositoryManager.PeopleRepository.GetAllPeople();
-            return _mapper.Map<List<PersonDTO>>(people);
+            var peopleDTOs = new List<PersonDTO>();
+            foreach (var person in people)
+            {
+                var personDTO = _mapper.Map<PersonDTO>(person);
+                SecurityHelper.UnprotectFields(person, personDTO, fields, _protector.Unprotect);
+                peopleDTOs.Add(personDTO);
+            }
+            return peopleDTOs;
         }
 
         public async Task<PersonDTO> GetPersonById(int personId)
@@ -64,7 +81,9 @@ namespace Services.Services
                 return null;
                 //throw new PersonNotFoundException(personId);
             }
-            return _mapper.Map<PersonDTO>(person);
+            var personDTO = _mapper.Map<PersonDTO>(person);
+            SecurityHelper.UnprotectFields(person, personDTO, fields, _protector.Unprotect);
+            return personDTO;
         }
 
         public async Task Update(int personId, PersonDTO personDTO, string token)
@@ -78,7 +97,7 @@ namespace Services.Services
             person.FirstName = personDTO.FirstName;
             person.LastName = personDTO.LastName;
             person.MiddleName = personDTO.MiddleName;
-            person.DateOfBirth = personDTO.DateOfBirth;
+            person.DateOfBirth = personDTO.DateOfBirth.ToString();
             person.Phone = personDTO.Phone;
             person.Nationality = personDTO.Nationality;
             person.Sex = personDTO.Sex;

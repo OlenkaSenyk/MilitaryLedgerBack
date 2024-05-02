@@ -13,7 +13,7 @@ namespace Services.Interfaces
         Task<DTO> GetById(int itemId);
         Task<IEnumerable<DTO>> GetByPersonId(int personId);
         Task<DTO> Add(int personId, AddingDTO itemDTO, string token);
-        Task Update(int itemId, DTO itemDTO, string token);
+        //Task Update(int itemId, DTO itemDTO, string token);
         Task Delete(int itemId);
         Task DeleteAllByPersonId(int personId);
     }

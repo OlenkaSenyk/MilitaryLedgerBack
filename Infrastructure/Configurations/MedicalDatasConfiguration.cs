@@ -16,8 +16,8 @@ namespace Infrastructure.Configurations
             builder.ToTable("MedicalDatas");
             builder.HasKey(data => data.Id);
             builder.Property(data => data.Id).ValueGeneratedOnAdd();
-            builder.Property(data => data.BloodType).HasMaxLength(2).IsRequired();
-            builder.Property(data => data.BloodRh).HasMaxLength(2).IsRequired();
+            builder.Property(data => data.BloodType).IsRequired();
+            builder.Property(data => data.BloodRh).IsRequired();
             builder.Property(data => data.Eligibility).IsRequired();
             builder.Property(data => data.Features).IsRequired();
             builder.Property(data => data.Notes);

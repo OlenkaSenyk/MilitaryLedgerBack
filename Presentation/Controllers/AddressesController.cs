@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Presentation.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "admin")]
     [ApiController]
     [Route("api/addresses")]
     public class AddressesController : ControllerBase
